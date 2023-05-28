@@ -1,14 +1,13 @@
-#[aoc2021::main(01)]
-fn main(input: &str) -> (i32, i32) {
-    (part1(input), part2(input))
+#![feature(array_windows)]
+
+fn part1(input: &Vec<i32>) -> i32 {
+    input.array_windows().filter(|[a, b]| a < b).count() as i32
 }
 
-fn part1(input: &str) -> i32 {
-    depth_increases(parse_input(input), 1)
-}
-
-fn part2(input: &str) -> i32 {
-    depth_increases(parse_input(input), 3)
+// a + b + c < b + c + d
+// a < d
+fn part2(input: &Vec<i32>) -> i32 {
+    input.array_windows().filter(|[a, _, _, d]| a < d).count() as i32
 }
 
 fn parse_input(input: &str) -> Vec<i32> {
@@ -18,20 +17,10 @@ fn parse_input(input: &str) -> Vec<i32> {
         .collect()
 }
 
-fn depth_increases(input: Vec<i32>, lookback_length: usize) -> i32 {
-    let mut num_increases = 0;
-    for reading_index in lookback_length..input.len() {
-        let sum: i32 = input[reading_index - lookback_length + 1..reading_index + 1]
-            .iter()
-            .sum();
-        let prev_sum = input[reading_index - lookback_length..reading_index]
-            .iter()
-            .sum();
-        if sum > prev_sum {
-            num_increases += 1;
-        }
-    }
-    num_increases
+#[aoc2021::main(01)]
+fn main(input: &str) -> (i32, i32) {
+    let parsed_input = parse_input(input);
+    (part1(&parsed_input), part2(&parsed_input))
 }
 
 #[cfg(test)]
@@ -51,11 +40,11 @@ mod tests {
 
     #[test]
     fn part_1() {
-        assert_eq!(part1(INPUT), 7);
+        assert_eq!(part1(&parse_input(INPUT)), 7);
     }
 
     #[test]
     fn part_2() {
-        assert_eq!(part2(INPUT), 5);
+        assert_eq!(part2(&parse_input(INPUT)), 5);
     }
 }
