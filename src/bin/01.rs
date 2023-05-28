@@ -27,7 +27,7 @@ fn main(input: &str) -> (i32, i32) {
 mod tests {
     use super::*;
 
-    static INPUT: &str = "199
+    const INPUT: &str = "199
     200
     208
     210
