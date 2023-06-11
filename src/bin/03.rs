@@ -2,8 +2,12 @@ use std::vec;
 
 #[aoc2021::main(03)]
 fn main(input: &str) -> (u32, u32) {
+    let input_width = input.lines().next().unwrap().len();
     let parsed_input = parse_input(input);
-    (part1(&parsed_input), part2(&parsed_input))
+    (
+        part1(&parsed_input, input_width),
+        part2(&parsed_input, input_width),
+    )
 }
 
 fn parse_input(input: &str) -> Vec<u32> {
@@ -36,45 +40,23 @@ fn most_common_bit(input: &Vec<u32>, idx: usize) -> Option<u32> {
     }
 }
 
-fn most_and_least_common(input: &Vec<u32>) -> (u32, u32) {
-    let max: &u32 = input.iter().max().unwrap();
-    let max_str = String::from(format!("{:b}", max));
-    let mut shift = max_str.len() as i32 - 1;
+fn part1(input: &Vec<u32>, input_width: usize) -> u32 {
     let mut most_common = 0;
     let mut least_common = 0;
-    let half_input_length = input.len() / 2;
-    while shift >= 0 {
-        let mut num_ones = 0;
-        for i in 0..input.len() {
-            let mut val = input[i];
-            val >>= shift;
-            if val & 1 == 1 {
-                num_ones += 1;
-            }
-        }
-
-        if num_ones > half_input_length {
-            most_common += 1 << shift;
+    for i in (0..input_width).rev() {
+        let bit = most_common_bit(input, i).unwrap_or(1);
+        if bit == 1 {
+            most_common += 1 << i;
         } else {
-            least_common += 1 << shift;
+            least_common += 1 << i;
         }
-        shift -= 1;
     }
-
-    (most_common, least_common)
-}
-
-fn part1(input: &Vec<u32>) -> u32 {
-    let (most_common, least_common) = most_and_least_common(input);
     most_common * least_common
 }
 
-fn ox_gen_rating(input: &Vec<u32>) -> u32 {
-    let max = input.iter().max().unwrap();
-    let max_str = String::from(format!("{:b}", max));
-    let num_bits = max_str.len();
+fn ox_gen_rating(input: &Vec<u32>, input_width: usize) -> u32 {
     let mut ox_gen_ratings: Vec<u32> = input.clone();
-    for i in (0..num_bits).rev() {
+    for i in (0..input_width).rev() {
         let bit = most_common_bit(&ox_gen_ratings, i).unwrap_or(1);
         let mut working_input = vec![];
         for j in 0..ox_gen_ratings.len() {
@@ -94,12 +76,9 @@ fn ox_gen_rating(input: &Vec<u32>) -> u32 {
     ox_gen_ratings[0]
 }
 
-fn co2_scrub_rating(input: &Vec<u32>) -> u32 {
-    let max = input.iter().max().unwrap();
-    let max_str = String::from(format!("{:b}", max));
-    let num_bits = max_str.len();
+fn co2_scrub_rating(input: &Vec<u32>, input_width: usize) -> u32 {
     let mut co2_scrub_ratings: Vec<u32> = input.clone();
-    for i in (0..num_bits).rev() {
+    for i in (0..input_width).rev() {
         let bit = if most_common_bit(&co2_scrub_ratings, i).unwrap_or(1) == 1 {
             0
         } else {
@@ -124,8 +103,8 @@ fn co2_scrub_rating(input: &Vec<u32>) -> u32 {
     co2_scrub_ratings[0]
 }
 
-fn part2(input: &Vec<u32>) -> u32 {
-    ox_gen_rating(input) * co2_scrub_rating(input)
+fn part2(input: &Vec<u32>, input_width: usize) -> u32 {
+    ox_gen_rating(input, input_width) * co2_scrub_rating(input, input_width)
 }
 
 #[cfg(test)]
@@ -144,6 +123,7 @@ mod tests {
 11001
 00010
 01010";
+    const INPUT_WIDTH: usize = 5;
 
     #[test]
     fn test_parse_input() {
@@ -163,11 +143,6 @@ mod tests {
     }
 
     #[test]
-    fn test_most_and_least_common() {
-        assert_eq!(most_and_least_common(&parse_input(INPUT)), (22, 9));
-    }
-
-    #[test]
     fn test_most_common_bit_at_i() {
         let parsed_input = parse_input(INPUT);
         assert_eq!(most_common_bit(&parsed_input, 4), Some(1));
@@ -179,11 +154,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(&parse_input(INPUT)), 198);
+        assert_eq!(part1(&parse_input(INPUT), INPUT_WIDTH), 198);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&parse_input(INPUT)), 230);
+        assert_eq!(part2(&parse_input(INPUT), INPUT_WIDTH), 230);
     }
 }
