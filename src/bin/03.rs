@@ -150,6 +150,7 @@ mod tests {
         assert_eq!(most_common_bit(&parsed_input, 2), Some(1));
         assert_eq!(most_common_bit(&parsed_input, 1), Some(1));
         assert_eq!(most_common_bit(&parsed_input, 0), Some(0));
+        assert_eq!(most_common_bit(&vec![0, 1], 0), None);
     }
 
     #[test]
