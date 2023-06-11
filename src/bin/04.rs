@@ -9,6 +9,28 @@ struct Board {
     pub rows: Vec<Vec<u32>>,
 }
 
+impl Board {
+    fn is_win(&self, draws: &[u32]) -> bool {
+        let row_match = self
+            .rows
+            .iter()
+            .any(|row| row.iter().all(|n| draws.contains(n)));
+        let col_match = (0..self.rows[0].len())
+            .any(|x| (0..self.rows.len()).all(|y| draws.contains(&self.rows[y][x])));
+        return row_match || col_match;
+    }
+
+    fn score(&self, draws: &[u32]) -> u32 {
+        let sum: u32 = self
+            .rows
+            .iter()
+            .flatten()
+            .filter(|n| !draws.contains(n))
+            .sum();
+        sum * draws.last().unwrap()
+    }
+}
+
 #[aoc2021::main(04)]
 fn main(input: &str) -> (u32, u32) {
     let parsed_input = parse_input(input);
@@ -44,8 +66,24 @@ fn parse_input(input: &str) -> Input {
 }
 
 fn part1(input: &Input) -> u32 {
-    0
+    let mut draw_index = 0;
+    let mut winning_board: Option<&Board> = None;
+    while draw_index < input.draws.len() {
+        winning_board = input
+            .boards
+            .iter()
+            .find(|board| board.is_win(&input.draws[0..draw_index]));
+
+        if winning_board.is_some() {
+            break;
+        }
+
+        draw_index += 1;
+    }
+
+    winning_board.unwrap().score(&input.draws[0..draw_index])
 }
+
 fn part2(input: &Input) -> u32 {
     0
 }
@@ -118,6 +156,31 @@ mod tests {
                 [2, 0, 12, 3, 7],
             ]
         );
+    }
+
+    #[test]
+    fn test_board_win_row() {
+        let board = &parse_input(&INPUT).boards[0];
+        assert!(board.is_win(&[6, 10, 2, 1, 3, 18, 5]));
+    }
+
+    #[test]
+    fn test_board_win_col() {
+        let board = &parse_input(&INPUT).boards[0];
+        assert!(board.is_win(&[0, 24, 8, 7, 5, 9, 19]));
+    }
+
+    #[test]
+    fn test_board_lose() {
+        let board = &parse_input(&INPUT).boards[0];
+        assert!(!board.is_win(&[6, 28, 10, 30, 320, 23, 325]));
+    }
+
+    #[test]
+    fn test_board_score() {
+        let board = &parse_input(&INPUT).boards[2];
+        let draws = [7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24];
+        assert_eq!(board.score(&draws), 4512);
     }
 
     #[test]
