@@ -5,6 +5,7 @@ struct Input {
     pub boards: Vec<Board>,
 }
 
+#[derive(Clone)]
 struct Board {
     pub rows: Vec<Vec<u32>>,
 }
@@ -85,7 +86,25 @@ fn part1(input: &Input) -> u32 {
 }
 
 fn part2(input: &Input) -> u32 {
-    0
+    let mut draw_index = 0;
+    let mut remaining_boards = input.boards.clone();
+    while draw_index < input.draws.len() && remaining_boards.len() > 1 {
+        remaining_boards = remaining_boards
+            .into_iter()
+            .filter(|board| !board.is_win(&input.draws[0..draw_index]))
+            .collect();
+
+        draw_index += 1;
+    }
+
+    assert!(remaining_boards.len() == 1);
+
+    let last_board = remaining_boards.first().unwrap();
+    while !last_board.is_win(&input.draws[0..draw_index]) {
+        draw_index += 1;
+    }
+
+    last_board.score(&input.draws[0..draw_index])
 }
 
 #[cfg(test)]
@@ -190,6 +209,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&parse_input(INPUT)), 0);
+        assert_eq!(part2(&parse_input(INPUT)), 1924);
     }
 }
