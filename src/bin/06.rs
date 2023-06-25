@@ -27,7 +27,7 @@ fn part1(input: &Vec<u64>) -> u64 {
         fishes[*i as usize] += 1;
     }
 
-    for i in 0..80 {
+    for _ in 0..80 {
         advance_day(&mut fishes);
     }
 
@@ -40,7 +40,7 @@ fn part2(input: &Vec<u64>) -> u64 {
         fishes[*i as usize] += 1;
     }
 
-    for i in 0..256 {
+    for _ in 0..256 {
         advance_day(&mut fishes);
     }
 
