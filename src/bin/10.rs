@@ -107,9 +107,7 @@ fn part_2_score(string: &str) -> u64 {
 fn part2(input: &Vec<&str>) -> u64 {
     let scores: Vec<u64> = input
         .iter()
-        .map(|s| completion_string(s))
-        .filter(|s| s.is_some())
-        .map(|s| s.unwrap())
+        .filter_map(|s| completion_string(s))
         .map(|s| part_2_score(&s))
         .sorted()
         .collect();
